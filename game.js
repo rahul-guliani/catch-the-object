@@ -8,17 +8,26 @@ const basket = {
     y: canvas.height - 50,
     width: 100,
     height: 20,
-    dx: 5
+    dx: 20
 };
 
-// Define the falling object
-const object = {
-    x: Math.random() * (canvas.width - 20),
-    y: 0,
-    width: 20,
-    height: 20,
-    dy: 2
-};
+// Initialize the falling objects array
+let objects = [];
+let objectCount = 5;
+
+// Initialize falling objects
+function createObjects() {
+    objects = [];
+    for (let i = 0; i < objectCount; i++) {
+        objects.push({
+            x: Math.random() * (canvas.width - 20),
+            y: Math.random() * -canvas.height,  // '-' to set starting y coordinate above the canvas
+            width: 20,
+            height: 20,
+            dy: 2 + Math.random() * 3   // Varying falling speeds
+        });
+    }
+}
 
 // Define the score
 let score = 0;
@@ -29,10 +38,12 @@ function drawBasket() {
     ctx.fillRect(basket.x, basket.y, basket.width, basket.height);
 }
 
-// Draw the falling object
-function drawObject() {
+// Draw the falling objects
+function drawObjects() {
     ctx.fillStyle = 'red';
-    ctx.fillRect(object.x, object.y, object.width, object.height);
+    objects.forEach(object => {
+        ctx.fillRect(object.x, object.y, object.width, object.height); 
+    });   
 }
 
 // Draw the score
@@ -59,43 +70,48 @@ function moveBasket() {
 }
 
 // Update the falling object's position
-function updateObject() {
-    object.y += object.dy;
+function updateObjects() {
+    objects.forEach(object => {
+        object.y += object.dy;
+    
+        // Check for collision with basket
+        if (
+            object.x + object.width > basket.x &&
+            object.x < basket.x + basket.width &&
+            object.y + object.height > basket.y
+        ) {
+            score++;
+            resetObject(object);
+        }
 
-    // Check for collision with basket
-    if (
-        object.x + object.width > basket.x &&
-        object.x < basket.x + basket.width &&
-        object.y + object.height > basket.y
-    ) {
-        score++;
-        resetObject();
-    }
-
-    // Check if the object has fallen off the screen
-    if (object.y + object.height > canvas.height) {
-        resetObject();
-    }
+        // Check if the object has fallen off the screen
+        if (object.y + object.height > canvas.height) {
+            resetObject(object);
+        }
+    });
 }
 
 // Resetting th falling object's position
-function resetObject() {
+function resetObject(object) {
     object.x = Math.random() * (canvas.width - 20);
-    object.y = 0;
+    object.y = Math.random() * - canvas.height;
+    object.dy = 2 + Math.random() * 2;  // Reset speed
 }
 
 // Update the game state
 function update() {
     clearCanvas();
     drawBasket();
-    drawObject();
+    drawObjects();
     drawScore();
-    updateObject();
-    requestAnimationFrame(update)
+    updateObjects();
+
+    requestAnimationFrame(update);
 }
 
 // Start the game
 moveBasket();
+createObjects();
 update();
 
 
