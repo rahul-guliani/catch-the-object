@@ -6,7 +6,7 @@ const ctx = canvas.getContext('2d');
 const basket = {
     x: canvas.width / 2 - 50,
     y: canvas.height - 50,
-    width: 100,
+    width: 300,
     height: 20,
     dx: 20
 };
@@ -24,13 +24,16 @@ function createObjects() {
             y: Math.random() * -canvas.height,  // '-' to set starting y coordinate above the canvas
             width: 20,
             height: 20,
-            dy: 2 + Math.random() * 3   // Varying falling speeds
+            dy: 1 + Math.random() * 2   // Varying falling speeds
         });
     }
 }
 
 // Define the score
 let score = 0;
+
+// Define the excaped objects
+let escaped_objects = 0;
 
 // Draw the basket
 function drawBasket() {
@@ -52,6 +55,13 @@ function drawScore() {
     ctx.fillStyle = 'black';
     ctx.fillText(`Score: ${score}`, 10, 20);
 }
+
+// Draw the no. of escaped objects
+function drawEscapedNumber() {
+    ctx.font = '20px Arial';
+    ctx.fillStyle = 'red';
+    ctx.fillText(`Escaped Objects: ${escaped_objects}`, 400, 20);
+} 
 
 // Clear the canvas
 function clearCanvas() {
@@ -83,9 +93,10 @@ function updateObjects() {
             score++;
             resetObject(object);
         }
-
+        
         // Check if the object has fallen off the screen
         if (object.y + object.height > canvas.height) {
+            escaped_objects++;
             resetObject(object);
         }
     });
@@ -98,21 +109,41 @@ function resetObject(object) {
     object.dy = 2 + Math.random() * 2;  // Reset speed
 }
 
+function drawGameOver() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.fillStyle = 'blue'
+    ctx.textAlign = 'center'
+    ctx.fillText('Game Over!', canvas.width / 2, canvas.height / 2)
+}
+
 // Update the game state
 function update() {
     clearCanvas();
     drawBasket();
     drawObjects();
     drawScore();
+    drawEscapedNumber();
     updateObjects();
 
-    requestAnimationFrame(update);
+    if (escaped_objects <= 5) {
+        requestAnimationFrame(update);
+    }
+    else {
+        drawGameOver();
+    }
 }
+
+// Update score
+//function updateScore() {
+//    if
+//}
 
 // Start the game
 moveBasket();
 createObjects();
 update();
+
+
 
 
 
